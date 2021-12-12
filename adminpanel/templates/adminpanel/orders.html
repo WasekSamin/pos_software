@@ -2,6 +2,8 @@
 <link rel="stylesheet" href="{% static 'css/admin-panel/admin-panel.css' %}">
 <link rel="stylesheet" href="{% static 'css/admin-panel/orders.css' %}">
 
+<script src="{% static 'js/admin-panel/adminpanelOrders.js' %}" defer></script>
+
 <!-- search content start -->
 <div class="main____search________content">
   <div class="search_____content me-1 mt-2">
@@ -10,9 +12,10 @@
         <input
           type="text"
           class="form-control"
-          placeholder="search here....."
+          placeholder="Search here....."
           aria-label=""
           aria-describedby="basic-addon1"
+          onkeyup="matchName(this)"
         />
         <div class="input-group-prepend">
           <button class="btn search_____btn" type="button">
@@ -24,12 +27,11 @@
   </div>
   <div>
     <div class="dropdown me-1 mt-2">
-        <button class="dropdown-toggle search_________btn" type="button" id="exportBtn" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="iconify" data-icon="bx:bx-export"></span> Export
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="exportBtn">
-          <li><a class="dropdown-item" href="#">Orders</a></li>
-        </ul>
+        <form method="POST" action="{% url 'export-order-data' shop_id.id %}">{% csrf_token %}
+          <button class="search_________btn" type="submit">
+              <span class="iconify" data-icon="bx:bx-export"></span> Export
+          </button>
+        </form>
       </div>
   </div>
 </div>
@@ -37,20 +39,14 @@
 
 <!-- order status start -->
 <div class="order_____status">
-  <h5>Order Status: </h5>
-  <form>
-    <select class="form-select main____select" aria-label="Default select example">
-        <option selected>All</option>
-      <option value="2">Open</option>
-      <option value="3">Pre-Authozied</option>
-      <option value="1">Pending Payment</option>
-      <option value="2">Partially Paid</option>
-      <option value="3">Paid</option>
-      <option value="1">Partially Refunded</option>
-      <option value="2">Voided</option>
-      <option value="3">Exchanged</option>
-      <option value="3" class="fw-bold">Cancelled</option>
+  <h5 class="fw-bold">Order Status: </h5>
+  <form method="GET" class="d-flex">
+    <select class="form-select me-1 main____select" aria-label="Default select example" name="order_type">
+      <option value="all" {% if order_type is None or order_type == "all" %}selected{% endif %}>All</option>
+      <option value="paid" {% if order_type == "paid" %}selected{% endif %}>Paid</option>
+      <option value="unpaid" {% if order_type == "unpaid" %}selected{% endif %}>Unpaid</option>
     </select>
+    <button type="submit" class="text-center" id="filter__btn">Filter</button>
   </form>
 </div>
 <!-- order status end -->
@@ -70,16 +66,40 @@
         <th scope="col">Customer</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="admin__orderTable">
       {% if orders %}
       {% for o in orders %}
       <tr>
-        <th scope="row">{{ o.id }}</th>
-        <td>{{ o.created_at }}</td>
-        <td>{{ o.status }}</td>
-        <td>{{ o.grand_total }}</td>
-        <td>{{ o.shop.user.username }}</td>
-        <td>{{ o.customer.customer_name }}</td>
+        <td class="fw-bold">
+          <a href="{% url 'restaurant-order-details' shop_id.id o.id %}" class="text-dark text-decoration-none w-100 d-flex">
+          {{ o.id }}
+          </a>
+        </td>
+        <td>
+          <a href="{% url 'restaurant-order-details' shop_id.id o.id %}" class="text-dark text-decoration-none w-100 d-flex">
+          {{ o.created_at }}
+          </a>
+        </td>
+        <td>
+          <a href="{% url 'restaurant-order-details' shop_id.id o.id %}" class="text-dark text-decoration-none w-100 d-flex">
+          {{ o.status }}
+          </a>
+        </td>
+        <td>
+          <a href="{% url 'restaurant-order-details' shop_id.id o.id %}" class="text-dark text-decoration-none w-100 d-flex">
+          ${{ o.grand_total }}
+          </a>
+        </td>
+        <td>
+          <a href="{% url 'restaurant-order-details' shop_id.id o.id %}" class="text-dark text-decoration-none w-100 d-flex">
+          {{ o.shop.user.username }}
+          </a>
+        </td>
+        <td>
+          <a href="{% url 'restaurant-order-details' shop_id.id o.id %}" class="text-dark text-decoration-none w-100 d-flex">
+          {{ o.customer.customer_name }}
+          </a>
+        </td>
       </tr>
       {% endfor %}
       {% else %}

@@ -20,7 +20,7 @@ from .views import (
     # Customer Edit 
     adminEditCustomerView,
     # Export
-    exportCustomerData, exportProductData,
+    exportCustomerData, exportProductData, exportOrderData,
 )
 
 urlpatterns = [
@@ -32,6 +32,7 @@ urlpatterns = [
 
     path("home/<int:shop_id>/", adminpanelHome, name="admin-home"),
     path("orders/<int:shop_id>/", adminpanelOrder, name="admin-order"),
+    path("export-order-data/<int:shop_id>/", exportOrderData, name="export-order-data"),
 
     # Department
     path("department/<int:shop_id>/", departmentHomeView, name="department"),

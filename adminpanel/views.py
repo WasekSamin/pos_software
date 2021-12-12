@@ -10,6 +10,7 @@ from django.db.models import Sum, Avg
 from django.contrib import messages
 from .models import Contact
 import csv
+from datetime import date
 
 import json
 
@@ -45,18 +46,33 @@ def logoutView(request):
 @login_required(login_url="login_for_admin")
 def adminpanelHome(request, shop_id):
     shop_id = get_object_or_404(Shop, pk=shop_id)
+    current_year = date.today().year
+    year_type = request.GET.get("filtered_year")
+
+    print("YEAR TYPE:", str(year_type))
+
+    if year_type is not None and year_type != "all":
+        current_year = year_type
+    elif year_type is None or year_type == "all":
+        current_year = date.today().year
+
     if shop_id.user == request.user:
         customer_amount = Customer.objects.filter(
             added_by = request.user
         ).count()
+
+        # shop_years = []
+
+        # Shop.objects.filter(created_at)
+
         # Gross Sales
         gs = RestCheckout.objects.filter(
-            shop=shop_id
+            shop=shop_id, status="PAID"
         ).aggregate(Avg("grand_total"))
         gs_sale = gs.pop("grand_total__avg")
         # Total Transaction
         total_transaction = RestCheckout.objects.filter(
-            shop=shop_id
+            shop=shop_id, status="PAID"
         ).aggregate(Sum("grand_total"))
         # delete_key = "grand_total"
         pipi = total_transaction.pop("grand_total__sum")
@@ -64,34 +80,113 @@ def adminpanelHome(request, shop_id):
         # del total_transaction["grand_total__sum"]
         print(type(total_transaction))
 
-        # json.dumps(str(total_transaction))
+        # Customer data for chart section starts
+        total_customer_list = []
+        customers = Customer.objects.filter(added_by=shop_id.user, created_at__year=current_year)
+
+        for cust in customers:
+            # print(cust.created_at.month)
+            total_customer_list.append(cust.created_at.month)
+
+        total_customer_set = set(total_customer_list)
+        # print(total_customer_set)
+
+        customer_unqiue_month_count = []
+        for item in total_customer_set:
+            customer_unqiue_month_count.append({str(item): total_customer_list.count(item)})
+
+        customer_unqiue_month_count = json.dumps(customer_unqiue_month_count)
+        # Customer data for chart section ends
+
+        # Total transaction data for chart section starts
+        total_transaction_list = []
+        transactions = RestCheckout.objects.filter(shop=shop_id, status="PAID", created_at__year=current_year)
+
+        for item in transactions:
+            print("HELLO", item.created_at.month, item.grand_total)
         
-        print(str(total_transaction))
-        print(customer_amount)
+        
+
+        # transaction_unqiue_month_count = json.dumps(transaction_unqiue_month_count)
+        # Total transaction data for chart section ends
+        
+        # Filter year section starts
+        customer_years = set()
+        all_customers = Customer.objects.filter(added_by=shop_id.user)
+
+        for item in all_customers:
+            customer_years.add(item.created_at.year)
+        print(customer_years)
+
+        transaction_years = set()
+        all_transactions = RestCheckout.objects.filter(status="PAID", shop=shop_id)
+
+        for item in all_transactions:
+            transaction_years.add(item.created_at.year)
+        print(transaction_years)
+
+        filtering_years = set()
+
+        if len(customer_years) > 0:
+            for item in customer_years:
+                filtering_years.add(item)
+        if len(transaction_years) > 0:
+            for item in transaction_years:
+                filtering_years.add(item)
+
+        print("FILTERED YEARS:", filtering_years)
+        # Filter year section ends
+
         args = {
             "shop_id": shop_id,
             "customer_amount": customer_amount,
             "total_transaction": total_transaction,
             "gs": gs,
             "pipi": pipi,
-            "gs_sale": gs_sale
+            "gs_sale": gs_sale,
+            "current_year": current_year,
+            "customer_unqiue_month_count": customer_unqiue_month_count,
+            # "transaction_unqiue_month_count": transaction_unqiue_month_count,
+            "filtering_years": filtering_years,
+            "year_type": year_type,
         }
         return render(request, "adminpanel/admin-panel.html", args)
     else:
         return HttpResponse("You are not the owner of this shop")
 
 
+
 @login_required(login_url="login_for_admin")
 def adminpanelOrder(request, shop_id):
+    order_type = request.GET.get("order_type")
+
+    print("ORDER TYPE:", order_type)
     shop_id = get_object_or_404(Shop, pk=shop_id)
     if shop_id.user == request.user:
         orders = RestCheckout.objects.filter(
             shop=shop_id
         )
 
+        if request.method == "GET":
+            order_type = request.GET.get("order_type")
+
+            if order_type == "all":
+                orders = RestCheckout.objects.filter(
+                    shop=shop_id
+                )
+            elif order_type == "paid":
+                orders = RestCheckout.objects.filter(
+                    shop=shop_id, status="PAID"
+                )
+            elif order_type == "unpaid":
+                orders = RestCheckout.objects.filter(
+                    shop=shop_id, status="UNPAID"
+                )
+
         args = {
             "orders": orders,
             "shop_id": shop_id,
+            "order_type": order_type,
         }
         return render(request, "adminpanel/orders.html", args)
     else:
@@ -847,5 +942,16 @@ def exportProductData(request, shop_id):
     data = Item.objects.filter(shop=shop_id)
     for row in data:
         rowobj = [row.item_name, row.item_price, row.buying_price, row.brand, row.category, row.vendor, row.shop, row.stock_amount, row.out_of_stock, row.item_img, row.product_descriptions, row.upc, row.sku, row.created_at]
+        writer.writerow(rowobj)
+    return response
+
+def exportOrderData(request, shop_id):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="filename.csv"'
+    writer = csv.writer(response)
+    writer.writerow(["id", "created_at", "status", "grand_total", "shop", "customer"])
+    data = RestCheckout.objects.filter(shop=shop_id)
+    for row in data:
+        rowobj = [row.id, row.created_at, row.status, row.grand_total, row.shop, row.customer]
         writer.writerow(rowobj)
     return response

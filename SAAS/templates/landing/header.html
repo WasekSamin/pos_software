@@ -107,22 +107,18 @@
           </li>
           <div class="side__________content" id="sidebar">
             <p class="sidebar________icon_____close"><span class="iconify" data-icon="eva:close-circle-fill" style="color: white;"></span></p>
-            <li><a class="fw-bold" href="#">Home</a></li>
-            <!-- <li><a class="fw-bold" href="#">Black Friday</a></li>
-            <li><a class="fw-bold" href="#">Hosting</a></li>
-            <li><a class="fw-bold" href="#">BDIX Hosting</a></li>
-            <li><a class="fw-bold" href="#">Server</a></li>
-            <li><a class="fw-bold" href="#">Domain</a></li> -->
+            <li><a class="fw-bold" href="{% url "landing" %}">Home</a></li>
             <li>
-              <a href="{% url 'login' %}" class="header_______button fw-bold">LOGIN</a>
-              <a href="{% url 'registration' %}" class="header_______button fw-bold">SIGN UP</a>
+              {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="header_______button fw-bold">Logout</a>
+              {% else %}    
+                <a href="{% url 'login' %}" class="header_______button fw-bold">LOGIN</a>
+                <a href="{% url 'registration' %}" class="header_______button fw-bold">SIGN UP</a>
+                
+              {% endif %}
             </li>
+            {% comment %} <li>Welcome {{ request.user }}</li> {% endcomment %}
           </div>
-          {% comment %} <div class="hamburger_____________menu">
-            <div id="hamburger_________id">
-              <span class="iconify hamburger_____________icon" data-icon="ci:hamburger"></span>
-            </div>
-          </div> {% endcomment %}
         </ul>
       </div>
     </div>

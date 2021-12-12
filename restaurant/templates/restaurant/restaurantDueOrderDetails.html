@@ -94,7 +94,7 @@
             </section>
 
             <section class="restaurant__orderPrintBtn d-flex justify-content-center px-3 pt-3">
-                <a href="{% url 'restaurant-receipt' shopId.id order_details.id %}" class="w-100">
+                <a href="{% url 'restaurant-due-receipt' shopId.id order_details.id %}" class="w-100">
                     <button class="fw-bold">Print Receipt</button>
                 </a>
             </section>

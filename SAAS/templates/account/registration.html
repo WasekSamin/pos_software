@@ -3,9 +3,10 @@
 
 <div class="reg_____main">
     <p class="sign" align="center">Sign Up</p>
-    <form class="form2">
-      <input class="un" type="text" align="center" placeholder="Username" required/>
-      <div class="first_____last_____name">
+    <form class="form2" action="" method="POST">
+      {% csrf_token %}
+      <input class="un" name="username" type="text" align="center" placeholder="Username" required/>
+      <!-- <div class="first_____last_____name">
         <input
           class="name____f"
           type="text"
@@ -18,21 +19,30 @@
           align="center"
           placeholder="Last Name" required
         />
-      </div>
-      <input
+      </div> -->
+      <!-- <input
         class="un"
+        name=""
         type="number"
         align="center"
         placeholder="Phone Number" required
-      />
-      <input class="un" type="email" align="center" placeholder="Email" required />
+      /> -->
+      <input class="un" name="email" type="email" align="center" placeholder="Email" required />
       <input
         class="pass"
+        name="password"
         type="password"
         align="center"
         placeholder="Password" required
       />
-      <label class="pass" for="formUpload">Upload Profile Picture</label>
+      <!-- <input
+        class="pass"
+        type="password"
+        name="password2"
+        align="center"
+        placeholder="Confirm Password" required
+      /> -->
+      <!-- <label class="pass" for="formUpload">Upload Profile Picture</label>
       <input
         class="upload____pro____pic"
         id="formUpload"
@@ -41,8 +51,10 @@
         onchange="forupload(this)" required
       />
 
-      <p class="pass" id="for-upload-name"></p>
-
+      <p class="pass" id="for-upload-name"></p> -->
+      {% if message %}
+      <p>{{ message }}</p>
+      {% else %}{% endif %}
       <button type="submit" class="submit" align="center">Sign Up</button>
     </form>
   </div>

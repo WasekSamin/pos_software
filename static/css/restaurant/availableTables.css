@@ -16,7 +16,7 @@
 /* table start */
 .table____div{
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     width: 15%;
     height: auto;
@@ -30,7 +30,7 @@
 .main____table____div{
     display:flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 }
 

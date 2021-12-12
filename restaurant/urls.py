@@ -3,9 +3,9 @@ from django.urls import path
 from .views import (
     openRestaurantView, restaurantDueView, restaurantAvailableTableView,addingNewCustomer,get_checkout,
     deleteRestaurantProductView, restaurantAllPaymentsView, restaurantOrderDetailsView,
-    restaurantReceiptView, select_customer_or_walkin, get_table_page, get_table_details, get_table_orders, get_table_receipt,
-    closeRegisterView, table_checkout_validation,
-    restaurantAllDuesView, restaurantDueOrderDetailsView, restaurantDueUpdateStatus
+    restaurantReceiptView, select_customer_or_walkin, get_table_page, get_table_details, get_table_orders, get_table_receipt, tableOrderDetailsView,
+    closeRegisterView, table_checkout_validation, 
+    restaurantAllDuesView, restaurantDueOrderDetailsView, restaurantDueUpdateStatus, restaurantDueReceiptView,
 )
 
 urlpatterns = [
@@ -17,6 +17,7 @@ urlpatterns = [
     path("order-details/<int:shop_id>/<int:id>/", restaurantOrderDetailsView, name="restaurant-order-details"),
     path("due-details/<int:shop_id>/<int:id>/", restaurantDueOrderDetailsView, name="restaurant-due-details"),
     path("all-dues/<int:shop_id>/", restaurantAllDuesView, name="restaurant-all-dues"),
+    path("restaurant-due-receipt/<int:shop_id>/<int:id>/", restaurantDueReceiptView, name="restaurant-due-receipt"),
     ## adding Customer URl
     path("adding-customer/<int:shop_id>/", addingNewCustomer, name="addingNewCustomer"),
     path("update-due-status/<int:shop_id>/<int:id>/", restaurantDueUpdateStatus, name="update-due-status"),
@@ -44,4 +45,6 @@ urlpatterns = [
     path("close-register/<int:shop_id>/", closeRegisterView, name="close-register"),
     # table checkout validation
     path("validation/<int:id>/<int:shop_id>/", table_checkout_validation, name="tableValidation"),
+    # table details
+    path("user-table-order-details/<int:shop_id>/<int:table_id>/", tableOrderDetailsView, name="user-table-order-details"), 
 ]

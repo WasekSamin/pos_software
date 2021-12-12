@@ -4,7 +4,7 @@ const amountReceived = document.getElementById("amount_received");
 const hiddenInput = document.getElementById("restaurantTotalAmount");
 const change = document.getElementById("change");
 
-function cash() {
+function cashOnekChash() {
   const takenInput = reciveCash.value;
   const showTakenInput = (amountReceived.innerHTML = takenInput);
   if (hiddenInput) {

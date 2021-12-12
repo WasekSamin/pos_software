@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (
  	saasHome, packageDetails, packageCheckout, userPackageView,
 	logInView, regView,
-	aboutusView, supportView,
+	aboutusView, supportView, logout_user
 )
 
 urlpatterns = [
@@ -12,6 +12,7 @@ urlpatterns = [
 	# log in and reg 
 	path("login/", logInView, name="login"),
 	path("registration/", regView, name="registration"),
+	path("logout/", logout_user, name="logout"),
 
 	# Package
 	path("package-details/<int:id>/", packageDetails, name="package-details"),

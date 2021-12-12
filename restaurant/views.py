@@ -1,7 +1,7 @@
 from django.http.response import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from datetime import date
-from .models import CartItems, Category, Customer, Item, RestCheckout, DueModel, Table, TableCheckout, TableItems, RefundModel
+from .models import CartItems, Category, Customer, Item, RestCheckout, DueModel, Table, TableCheckout, TableItems, RefundModel, Shop
 from SAAS.models import *
 from django.db.models import Q
 
@@ -107,6 +107,7 @@ def restaurantDueView(request, shop_id):
                 customer=Customer.objects.get(id=customer),
                 order_note=order_note,
                 submission_date=submission_date,
+                shop=shopId
             )
 
             due.save()
@@ -376,6 +377,23 @@ def restaurantReceiptView(request, shop_id, id):
     }
     return render(request, "restaurant/restaurantReceipt.html", args)
 
+# restaurant receipt
+def restaurantDueReceiptView(request, shop_id, id):
+    shopId = get_object_or_404(Shop, id=shop_id)
+    order_details = DueModel.objects.get(id=id)
+
+    total_item = 0
+    
+    for item in order_details.items.all():
+        total_item += item.quantity
+
+    args = {
+        "order_details": order_details,
+        "total_item": total_item,
+        "shopId": shopId,
+    }
+    return render(request, "restaurant/restaurantDueReceipt.html", args)
+
 
 # selecting the customer or walkin
 
@@ -523,7 +541,15 @@ def table_checkout_validation(request, id, shop_id, *args, **kwargs):
             request.session["cart1"] = cart2
             return HttpResponse("Success")
     
+def tableOrderDetailsView(request, shop_id, table_id):
+    shopId = get_object_or_404(Shop, id=shop_id)
+    tableObj = get_object_or_404(TableCheckout, id=table_id)
 
+    args={
+        "shopId": shopId,
+        "tableObj": tableObj,
+    }
+    return render(request, "table/table_order_details.html", args) 
 
 def get_table_orders(request, shop_id, *args, **kwargs):
     shopId = get_object_or_404(Shop, pk=shop_id)
@@ -535,7 +561,7 @@ def get_table_orders(request, shop_id, *args, **kwargs):
             "shopId": shopId,
             "get_table_orders": get_table_orders,
         }
-        return render(request, "", args)
+        return render(request, "table/all_table_order.html", args)
     else:
         return redirect("warning")
 
@@ -549,7 +575,7 @@ def get_table_receipt(request, shop_id, id, *args, **kwargs):
             "shopId": shopId,
             "get_receipt": get_receipt,
         }
-        return render(request, "", args)
+        return render(request, "table/table-receipt.html", args)
     else:
         return redirect("warning")
 

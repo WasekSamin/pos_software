@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
+from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -152,20 +154,55 @@ def userPackageView(request, id):
 # log in and registration
 def logInView(request):
     packages = Package.objects.all()[:3]
+    if request.method == "POST":
+        post_data = request.POST
+        username = post_data.get("username")
+        password = post_data.get("password")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect("landing")
 
     args = {
         "packages": packages,
     }
     return render(request, "account/login.html", args)
 
+
 def regView(request):
     packages = Package.objects.all()[:3]
-
+    message = None
+    if request.method == "POST":
+        post_data = request.POST
+        username = post_data.get("username")
+        email = post_data.get("email")
+        password = post_data.get("password")
+        # password2 = post_data.get("password2")
+      
+        if len(password) >= 8:
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password
+            )
+            print(user)
+            return redirect("landing")
+        else:
+            message = "Password is too short. It must contain 8 characters"
     args = {
         "packages": packages,
+        "message": message
     }
-    return render(request, "account/registration.html", args)   
+    return render(request, "account/registration.html", args)
 
+
+# Logout View Function
+
+def logout_user(request):
+    logout(request)
+    return redirect("login")
 
 # footer pages    
 # about us
