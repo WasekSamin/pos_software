@@ -190,7 +190,7 @@
               name="uploadImg"
               onchange="forupload(this)"
               accept="image/*"
-              value="{% if prod_obj.item_img %}{{ prod_obj.item_img }}{% endif %}"
+              {% comment %} value="{% if prod_obj.item_img %}{{ prod_obj.item_img }}{% endif %}" {% endcomment %}
             />
             {% if prod_obj.item_img %}
             <div class="my-2">

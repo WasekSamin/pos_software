@@ -459,7 +459,7 @@ def editProducteView(request, shop_id, prod_id):
 def adminEditProductView(request, shop_id, prod_id):
     shop_id = get_object_or_404(Shop, id=shop_id)
     prod_obj = get_object_or_404(Item, id=prod_id)
-    prod_image, selected_brand, upc = None, None, None
+    product_img, selected_brand, upc = None, None, None
     out_of_stock = False
 
     if request.method == "POST":
